@@ -43,10 +43,14 @@ function initHeroSequence() {
         return;
     }
 
+    // No requestAnimationFrame here: rAF is suspended in hidden tabs, so a
+    // page opened in the background would never get its ready class. Adding
+    // the class directly is safe -- the browser plays the transitions when
+    // the tab first becomes visible.
     Promise.race([
         document.fonts?.ready ?? Promise.resolve(),
         new Promise((resolve) => setTimeout(resolve, 700)),
-    ]).then(() => requestAnimationFrame(ready));
+    ]).then(ready);
 }
 
 /* ---------------------------------------------------------------------------
