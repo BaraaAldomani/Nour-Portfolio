@@ -1,0 +1,134 @@
+/*
+| ============================================================================
+| Design tokens
+| ============================================================================
+|
+| THREE editable brand colours. Everything else on this site -- every ramp,
+| surface, text colour, border, glass tint and glow -- is derived from them with
+| color-mix(in oklab, ...). Change one of the three and the whole site re-themes.
+|
+| The dashboard injects an inline <style>:root{...}</style> after @vite that
+| overrides just these three. Because every derived value is a live var()
+| reference, the cascade recomputes the entire palette with no rebuild.
+|
+| Register: dark editorial "kitchen pass at night" -- near-black base, warm gold,
+| cream. Do not add a fourth brand colour here.
+*/
+
+:root {
+    /* ---- The three editable brand colours -------------------------------- */
+    --brand-primary: #c8a24c;   /* gold: links, CTAs, the plate ring */
+    --brand-secondary: #0f0e0c; /* near-black: ink and dark sections */
+    --brand-accent: #e8dcc8;    /* warm beige: highlights and glow */
+
+    /* ---- Primary ramp ---------------------------------------------------- */
+    --color-primary-50:  color-mix(in oklab, var(--brand-primary) 12%, white);
+    --color-primary-100: color-mix(in oklab, var(--brand-primary) 22%, white);
+    --color-primary-200: color-mix(in oklab, var(--brand-primary) 38%, white);
+    --color-primary-300: color-mix(in oklab, var(--brand-primary) 58%, white);
+    --color-primary-400: color-mix(in oklab, var(--brand-primary) 80%, white);
+    --color-primary-500: var(--brand-primary);
+    --color-primary-600: color-mix(in oklab, var(--brand-primary) 84%, var(--brand-secondary));
+    --color-primary-700: color-mix(in oklab, var(--brand-primary) 66%, var(--brand-secondary));
+    --color-primary-800: color-mix(in oklab, var(--brand-primary) 46%, var(--brand-secondary));
+    --color-primary-900: color-mix(in oklab, var(--brand-primary) 28%, var(--brand-secondary));
+    --color-primary-950: color-mix(in oklab, var(--brand-primary) 16%, var(--brand-secondary));
+
+    /* ---- Neutral ramp, warmed by the accent so nothing reads as cold grey - */
+    --color-neutral-50:  color-mix(in oklab, var(--brand-accent) 34%, white);
+    --color-neutral-100: color-mix(in oklab, var(--brand-accent) 62%, white);
+    --color-neutral-200: color-mix(in oklab, var(--brand-accent) 88%, white);
+    --color-neutral-300: color-mix(in oklab, var(--brand-accent) 78%, var(--brand-secondary));
+    --color-neutral-400: color-mix(in oklab, var(--brand-accent) 58%, var(--brand-secondary));
+    --color-neutral-500: color-mix(in oklab, var(--brand-accent) 42%, var(--brand-secondary));
+    --color-neutral-600: color-mix(in oklab, var(--brand-accent) 30%, var(--brand-secondary));
+    --color-neutral-700: color-mix(in oklab, var(--brand-accent) 20%, var(--brand-secondary));
+    --color-neutral-800: color-mix(in oklab, var(--brand-accent) 12%, var(--brand-secondary));
+    --color-neutral-900: color-mix(in oklab, var(--brand-accent) 6%, var(--brand-secondary));
+    --color-neutral-950: var(--brand-secondary);
+
+    /*
+    | ---- Semantic tokens: DARK is the default register -------------------
+    |
+    | A `.surface-light` scope below re-points these same names at the cream
+    | palette, so every utility (bg-surface, text-ink, ...) keeps working
+    | unchanged inside a light section. This is why Blade never needs a colour
+    | decision -- only a section-level register.
+    */
+    --color-surface:    var(--brand-secondary);
+    --color-surface-2:  color-mix(in oklab, var(--brand-accent) 5%, var(--brand-secondary));
+    --color-surface-3:  color-mix(in oklab, var(--brand-accent) 9%, var(--brand-secondary));
+
+    --color-ink:        var(--brand-accent);
+    /* Measured against --color-surface: ink 14.2:1, muted 5.3:1, faint 4.6:1.
+       `faint` carries real text (dates, micro-labels, the footer), so it is held
+       to the same 4.5:1 AA floor as body copy rather than treated as decoration. */
+    --color-muted:      color-mix(in oklab, var(--brand-accent) 62%, var(--brand-secondary));
+    --color-faint:      color-mix(in oklab, var(--brand-accent) 57%, var(--brand-secondary));
+
+    /* Decorative dividers -- deliberately near-invisible, and never a boundary a
+       reader must perceive to operate something. */
+    --color-line:       color-mix(in oklab, var(--brand-accent) 16%, var(--brand-secondary));
+    --color-line-strong: color-mix(in oklab, var(--brand-accent) 28%, var(--brand-secondary));
+    /* The visible edge of an interactive control (inputs, ghost buttons). WCAG
+       1.4.11 requires 3:1 for these, which the decorative lines above do not meet. */
+    --color-control-line: color-mix(in oklab, var(--brand-accent) 46%, var(--brand-secondary));
+
+    /* On dark, the gold is already 8:1 -- it can be used for text as-is. */
+    --color-primary:    var(--brand-primary);
+    --color-on-primary: var(--brand-secondary);
+
+    /* Frosted panels over photography. */
+    --color-glass:      color-mix(in oklab, var(--brand-secondary) 72%, transparent);
+    --color-glass-line: color-mix(in oklab, var(--brand-accent) 14%, transparent);
+
+    /* Glows and washes. */
+    --glow-primary: color-mix(in oklab, var(--brand-primary) 40%, transparent);
+    --glow-accent:  color-mix(in oklab, var(--brand-accent) 22%, transparent);
+    --wash-primary: color-mix(in oklab, var(--brand-primary) 8%, transparent);
+
+    /* ---- Motion ---------------------------------------------------------- */
+    --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+    --dur-fast: 220ms;
+    --dur-base: 420ms;
+    --dur-slow: 900ms;
+    /* One full turn of the plate ring. Deliberately slow enough to read as
+       ambient rather than as a spinner. */
+    --dur-ring: 46s;
+}
+
+/*
+| The light register. Applying `.surface-light` to a section re-points the
+| semantic tokens; nothing inside the section needs to know it changed.
+*/
+.surface-light {
+    --color-surface:    color-mix(in oklab, var(--brand-accent) 26%, white);
+    --color-surface-2:  color-mix(in oklab, var(--brand-accent) 44%, white);
+    --color-surface-3:  color-mix(in oklab, var(--brand-accent) 62%, white);
+
+    --color-ink:        color-mix(in oklab, var(--brand-secondary) 94%, var(--brand-accent));
+    /* ink 16.5:1, muted 8.6:1, faint 4.6:1 against the cream surface. */
+    --color-muted:      color-mix(in oklab, var(--brand-secondary) 68%, var(--brand-accent));
+    --color-faint:      color-mix(in oklab, var(--brand-secondary) 50%, var(--brand-accent));
+
+    --color-line:       color-mix(in oklab, var(--brand-secondary) 14%, var(--brand-accent));
+    --color-line-strong: color-mix(in oklab, var(--brand-secondary) 28%, var(--brand-accent));
+    --color-control-line: color-mix(in oklab, var(--brand-secondary) 42%, var(--brand-accent));
+
+    /*
+    | Raw gold on cream is only ~2.3:1 and fails AA badly. On light surfaces the
+    | usable "primary" is a darkened gold; the pure brand colour is reserved for
+    | non-text decoration (rules, ring strokes, icons) where contrast rules do
+    | not bind.
+    */
+    --color-primary:    color-mix(in oklab, var(--brand-primary) 52%, var(--brand-secondary));
+    --color-on-primary: color-mix(in oklab, var(--brand-accent) 30%, white);
+
+    --color-glass:      color-mix(in oklab, white 68%, transparent);
+    --color-glass-line: color-mix(in oklab, var(--brand-secondary) 10%, transparent);
+
+    --glow-primary: color-mix(in oklab, var(--brand-primary) 26%, transparent);
+    --glow-accent:  color-mix(in oklab, var(--brand-primary) 12%, transparent);
+    --wash-primary: color-mix(in oklab, var(--brand-primary) 10%, transparent);
+}

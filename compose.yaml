@@ -8,6 +8,14 @@ services:
       dockerfile: docker/app/Dockerfile
     volumes:
       - .:/var/www/html
+      # vendor/ and node_modules/ live in named volumes rather than on the
+      # Windows bind mount. Walking the 13k vendor files over the host mount
+      # takes ~45s; from the VM's own filesystem it is milliseconds. Since
+      # OPcache is off in dev, every request would otherwise pay that cost.
+      # Trade-off: the host cannot see vendor/, so IDE indexing needs a local
+      # `composer install` (both are gitignored either way).
+      - vendor:/var/www/html/vendor
+      - node_modules:/var/www/html/node_modules
     depends_on:
       db:
         condition: service_healthy
@@ -47,7 +55,10 @@ services:
       - "5175:5175"
     volumes:
       - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
     command: sh -c "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0 --port 5175"
 
 volumes:
   dbdata:
+  vendor:
+  node_modules:
