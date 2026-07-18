@@ -109,14 +109,22 @@ final class PublicPagesTest extends TestCase
     public function the_self_hosted_fonts_are_actually_emitted(): void
     {
         // The failure this guards against is silent: without @fonts in the
-        // layout the CSS still asks for Amiri and Cormorant, nothing ever
+        // layout the CSS still asks for Fraunces and El Messiri, nothing ever
         // defines them, and the whole site falls back to the system serif.
         // Every other check still passes, so only this one catches it.
+
+        // When the Vite dev server is running (public/hot exists), @fonts
+        // emits dev-server tags with a different shape. Emission is asserted
+        // against the build manifest -- which is what CI and production use.
+        if (file_exists(public_path('hot'))) {
+            $this->markTestSkipped('Vite dev server running; font emission is asserted against the build manifest in CI.');
+        }
+
         $html = $this->get(route('home', ['locale' => 'ar']))->getContent();
 
         $this->assertStringContainsString('@font-face', $html, 'No @font-face rules were emitted.');
 
-        foreach (['Cormorant Garamond', 'Amiri', 'Inter', 'Cairo'] as $family) {
+        foreach (['Fraunces', 'El Messiri', 'Figtree', 'Tajawal'] as $family) {
             $this->assertStringContainsString(
                 $family,
                 $html,

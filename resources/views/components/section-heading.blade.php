@@ -10,7 +10,13 @@
     'mx-auto text-center' => $align === 'center',
 ])>
     @if ($eyebrow)
-        <p class="eyebrow reveal">{{ $eyebrow }}</p>
+        <p @class([
+            'eyebrow reveal flex items-center gap-3',
+            'justify-center' => $align === 'center',
+        ])>
+            <span class="h-px w-10 bg-primary"></span>
+            {{ $eyebrow }}
+        </p>
     @endif
 
     @if ($title)

@@ -10,15 +10,16 @@
         <div class="container-page">
             <ol class="relative">
                 {{-- The timeline spine. Positioned with a logical offset so it
-                     sits on the reading edge in both directions. --}}
+                     sits on the reading edge in both directions, and grows
+                     downward as it enters the viewport. --}}
                 <div
-                    class="pointer-events-none absolute top-2 bottom-2 hidden w-px bg-line lg:block"
+                    class="grow-y pointer-events-none absolute top-2 bottom-2 hidden w-px bg-line-strong lg:block"
                     style="inset-inline-start: 11.5rem;"
                     aria-hidden="true"
                 ></div>
 
                 @foreach ($site->experiences() as $index => $experience)
-                    <li class="reveal relative pb-16 last:pb-0" data-reveal-index="{{ $index }}">
+                    <li class="reveal-side relative pb-16 last:pb-0" data-reveal-index="{{ $index }}">
                         <div class="grid gap-6 lg:grid-cols-[10rem_1fr] lg:gap-16">
                             {{-- Dates --}}
                             <div class="lg:text-end">
@@ -32,7 +33,7 @@
                             <div class="relative">
                                 {{-- Timeline node --}}
                                 <span
-                                    class="absolute top-3 hidden h-2.5 w-2.5 rounded-full border border-primary bg-surface lg:block"
+                                    class="node-pop absolute top-3 hidden h-2.5 w-2.5 rounded-full border border-primary bg-surface lg:block"
                                     style="inset-inline-start: -4.3rem;"
                                     aria-hidden="true"
                                 ></span>
@@ -74,7 +75,7 @@
 
     {{-- Education --}}
     @if ($site->educationItems()->isNotEmpty())
-        <section class="surface-light bg-surface py-20 lg:py-28">
+        <section class="border-t border-line bg-surface-2 py-20 lg:py-28">
             <div class="container-page">
                 <h2 class="display-section reveal text-ink">{{ setting_text('about.education_title') }}</h2>
 

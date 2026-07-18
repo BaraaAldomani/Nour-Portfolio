@@ -7,7 +7,7 @@
 <article
     data-category="{{ $dish->localized('category') }}"
     data-reveal-index="{{ $index }}"
-    class="reveal group"
+    class="reveal card-lift group"
 >
     <div class="frame {{ $aspect }}">
         <img
@@ -29,9 +29,10 @@
             <p class="text-[0.6875rem] tracking-[0.16em] text-primary uppercase">
                 {{ $dish->localized('category') }}
             </p>
-            <h3 class="mt-1.5 font-display text-2xl text-neutral-100">
+            <h3 class="mt-1.5 font-display text-2xl text-neutral-100 transition-transform duration-500 group-hover:-translate-y-1">
                 {{ $dish->localized('title') }}
             </h3>
+            <span class="rule-slide mt-2.5" aria-hidden="true"></span>
         </div>
     </div>
 

@@ -12,7 +12,10 @@
 
     <div class="container-page relative">
         @if ($eyebrow)
-            <p class="eyebrow reveal">{{ $eyebrow }}</p>
+            <p class="eyebrow reveal flex items-center gap-3">
+                <span class="h-px w-10 bg-primary"></span>
+                {{ $eyebrow }}
+            </p>
         @endif
 
         <h1 class="display-hero reveal mt-5 max-w-4xl text-ink" data-reveal-index="1">

@@ -1,6 +1,9 @@
-# Local dev stack for nouraldomani.com.
-# Ports are deliberately offset so this stack can run alongside the other sites
-# on this machine: nginx 8082, postgres 5434, vite 5175.
+# Local dev stack, structured to match the sibling sites on this machine
+# (baraa-website, rouaa-website): app + nginx + db + node, one project name,
+# env-var ports. This site's defaults are nginx 8082, postgres 5434, vite 5175
+# so all three stacks run simultaneously.
+name: nour-website
+
 services:
   app:
     build:
@@ -8,24 +11,21 @@ services:
       dockerfile: docker/app/Dockerfile
     volumes:
       - .:/var/www/html
-      # vendor/ and node_modules/ live in named volumes rather than on the
-      # Windows bind mount. Walking the 13k vendor files over the host mount
-      # takes ~45s; from the VM's own filesystem it is milliseconds. Since
-      # OPcache is off in dev, every request would otherwise pay that cost.
-      # Trade-off: the host cannot see vendor/, so IDE indexing needs a local
-      # `composer install` (both are gitignored either way).
+      # Unlike the siblings, vendor/ lives in a named volume rather than on the
+      # Windows bind mount. Walking the ~13k vendor files over the host mount
+      # costs ~45s per request with OPcache off (which dev needs -- see the
+      # Dockerfile); from the VM's own filesystem it is milliseconds. Trade-off:
+      # the host cannot see vendor/, so IDE indexing needs a local
+      # `composer install` (gitignored either way).
       - vendor:/var/www/html/vendor
-      - node_modules:/var/www/html/node_modules
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      COMPOSER_MEMORY_LIMIT: '-1'
 
   nginx:
     image: nginx:1.27-alpine
     ports:
-      - "8082:80"
+      - "${NGINX_PORT:-8082}:80"
     volumes:
       - .:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
@@ -34,31 +34,31 @@ services:
 
   db:
     image: postgres:16-alpine
-    ports:
-      - "5434:5432"
     environment:
-      POSTGRES_DB: nour
-      POSTGRES_USER: nour
-      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: ${DB_DATABASE:-nour}
+      POSTGRES_USER: ${DB_USERNAME:-nour}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
     volumes:
-      - dbdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${DB_FORWARD_PORT:-5434}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nour -d nour"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-nour} -d ${DB_DATABASE:-nour}"]
       interval: 5s
-      timeout: 5s
-      retries: 20
+      timeout: 3s
+      retries: 10
 
   node:
     image: node:22-alpine
     working_dir: /var/www/html
-    ports:
-      - "5175:5175"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     volumes:
       - .:/var/www/html
       - node_modules:/var/www/html/node_modules
-    command: sh -c "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0 --port 5175"
+    ports:
+      - "${VITE_PORT:-5175}:5175"
 
 volumes:
-  dbdata:
+  pgdata:
   vendor:
   node_modules:

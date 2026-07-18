@@ -42,27 +42,37 @@
 
     {{-- Skills --}}
     @if ($site->skills()->isNotEmpty())
-        <section class="surface-light bg-surface py-20 lg:py-28">
+        <section class="border-y border-line bg-surface-2 py-20 lg:py-28">
             <div class="container-page">
                 <h2 class="display-section reveal text-ink">{{ setting_text('about.skills_title') }}</h2>
 
-                <div class="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+                {{-- One panel per category; inside each, the gold bars fill to
+                     their level in a cascade when the panel scrolls into view. --}}
+                <div class="mt-12 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2">
                     @foreach ($site->skills()->groupBy(fn ($skill) => $skill->category->value) as $category => $skills)
-                        <div class="reveal" data-reveal-index="{{ $loop->index }}">
-                            <h3 class="text-xs font-medium uppercase tracking-[0.2em] text-primary">
+                        <div class="reveal-stagger bg-surface p-8 lg:p-10" data-reveal-index="{{ $loop->index }}">
+                            <h3 class="eyebrow flex items-center gap-3">
+                                <span class="h-px w-8 bg-primary"></span>
                                 {{ $skills->first()->category->label() }}
                             </h3>
 
-                            <ul class="mt-6 space-y-4">
+                            <ul class="mt-7 space-y-6">
                                 @foreach ($skills as $skill)
                                     <li>
-                                        <p class="text-sm text-ink">{{ $skill->localized('name') }}</p>
-                                        <p class="meter mt-2" role="img"
-                                           aria-label="{{ $skill->localized('name') }}: {{ $skill->level }}/5">
-                                            @for ($i = 1; $i <= 5; $i++)
-                                                <span data-on="{{ $i <= $skill->level ? '1' : '0' }}"></span>
-                                            @endfor
-                                        </p>
+                                        <div class="flex items-baseline justify-between gap-4">
+                                            <p class="text-[0.95rem] text-ink">{{ $skill->localized('name') }}</p>
+                                            <span class="font-display text-sm text-faint" dir="ltr">{{ $skill->level }}/5</span>
+                                        </div>
+                                        <span
+                                            class="meter-track"
+                                            role="img"
+                                            aria-label="{{ $skill->localized('name') }}: {{ $skill->level }}/5"
+                                        >
+                                            <span
+                                                class="meter-fill"
+                                                style="--meter: {{ $skill->level / 5 }}; --stagger-delay: {{ $loop->index * 110 }}ms"
+                                            ></span>
+                                        </span>
                                     </li>
                                 @endforeach
                             </ul>

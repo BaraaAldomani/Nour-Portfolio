@@ -3,28 +3,45 @@
     {{-- ================================================================== --}}
     {{-- Hero                                                                --}}
     {{-- ================================================================== --}}
-    <section class="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-28">
+    {{--
+    | The entrance is one choreographed sequence (see initHeroSequence): the
+    | eyebrow, name, tagline and lead rise out of clipping masks in order, then
+    | the portrait sharpens in over the pass lamp. --mask-delay staggers them.
+    --}}
+    <section data-hero class="wash-top relative flex min-h-[92svh] items-center overflow-hidden pt-32 pb-16 lg:pt-36">
+        {{-- The outlined word behind everything. --}}
+        <span class="watermark top-10 lg:top-4" aria-hidden="true">{{ __('common.hero_watermark') }}</span>
+
         <div class="container-page relative grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
             {{-- Copy --}}
             <div>
-                <p class="eyebrow reveal">{{ setting_text('home.hero_eyebrow') }}</p>
+                <div class="mask-line">
+                    <p class="eyebrow flex items-center gap-3" style="--mask-delay: 80ms">
+                        <span class="h-px w-10 bg-primary"></span>
+                        {{ setting_text('home.hero_eyebrow') }}
+                    </p>
+                </div>
 
-                <h1 class="display-hero reveal mt-6 text-ink" data-reveal-index="1">
-                    {{ setting_text('identity.name') }}
-                </h1>
+                <div class="mask-line mt-6">
+                    <h1 class="display-hero text-ink" style="--mask-delay: 200ms">
+                        {{ setting_text('identity.name') }}
+                    </h1>
+                </div>
 
-                <div class="reveal mt-6 flex items-center gap-4" data-reveal-index="2">
-                    <span class="h-px w-14 bg-primary"></span>
-                    <p class="font-display text-2xl text-primary lg:text-3xl">
+                <div class="mask-line mt-7">
+                    <p class="flex items-center gap-4 font-display text-2xl text-primary lg:text-3xl" style="--mask-delay: 360ms">
+                        <span class="h-px w-14 bg-primary"></span>
                         {{ setting_text('identity.tagline') }}
                     </p>
                 </div>
 
-                <p class="lead reveal mt-8 max-w-xl" data-reveal-index="3">
-                    {{ setting_text('home.hero_lead') }}
-                </p>
+                <div class="mask-line mt-8">
+                    <p class="lead max-w-xl" style="--mask-delay: 480ms">
+                        {{ setting_text('home.hero_lead') }}
+                    </p>
+                </div>
 
-                <div class="reveal mt-10 flex flex-wrap items-center gap-4" data-reveal-index="4">
+                <div class="mt-10 flex flex-wrap items-center gap-4" data-hero-fade style="--mask-delay: 620ms">
                     <a href="{{ route('portfolio') }}" class="btn btn-primary">
                         {{ setting_text('home.hero_cta') }}
                     </a>
@@ -36,10 +53,10 @@
 
             {{-- Portrait, with the pass lamp and the plate rings behind it.
                  Both decorations are centred on the portrait itself, so they
-                 track it in either writing direction. --}}
-            <div class="reveal-blur relative mx-auto w-full max-w-md lg:max-w-none">
-                <div class="pass-glow center-abs h-[34rem] w-[34rem] opacity-70" aria-hidden="true"></div>
-                <x-plate-rings class="center-abs h-[42rem] w-[42rem]" opacity="0.32" />
+                 track it in either writing direction. The rings drift on scroll. --}}
+            <div class="relative mx-auto w-full max-w-md lg:max-w-none" data-hero-fade style="--mask-delay: 380ms">
+                <div class="pass-glow pass-glow--pulse center-abs h-[34rem] w-[34rem]" aria-hidden="true"></div>
+                <x-plate-rings class="center-abs h-[42rem] w-[42rem]" opacity="0.32" data-parallax="-0.08" />
 
                 <img
                     src="{{ image_url((string) setting('images.portrait'), 'portrait') }}"
@@ -52,22 +69,26 @@
                 >
             </div>
         </div>
+    </section>
 
-        {{-- Metrics --}}
-        @if ($site->metrics()->isNotEmpty())
-            <div class="container-page relative mt-20 lg:mt-28">
-                <dl class="grid grid-cols-2 gap-px overflow-hidden border border-line bg-line lg:grid-cols-4">
+    {{-- ================================================================== --}}
+    {{-- Metrics strip                                                       --}}
+    {{-- ================================================================== --}}
+    @if ($site->metrics()->isNotEmpty())
+        <section class="border-y border-line py-12 lg:py-16">
+            <div class="container-page">
+                <dl class="flex flex-col gap-10 sm:flex-row sm:items-stretch sm:justify-between">
                     @foreach ($site->metrics() as $index => $metric)
                         {{-- column-reverse puts the figure above its label while
                              keeping the required dt-then-dd source order. --}}
                         <div
-                            class="reveal flex flex-col-reverse bg-surface p-7 text-center lg:p-9"
+                            class="reveal flex flex-1 flex-col-reverse border-line sm:border-s sm:ps-8 sm:first:border-s-0 sm:first:ps-0"
                             data-reveal-index="{{ $index }}"
                         >
                             <dt class="mt-3 text-sm leading-snug text-muted">
                                 {{ $metric->localized('label') }}
                             </dt>
-                            <dd class="font-display text-5xl text-primary lg:text-6xl">
+                            <dd class="font-display text-6xl text-primary lg:text-7xl">
                                 <span data-count-to="{{ $metric->value }}">{{ $metric->value }}</span
                                 >@if ($metric->suffix)<span>{{ $metric->suffix }}</span>@endif
                             </dd>
@@ -75,13 +96,13 @@
                     @endforeach
                 </dl>
             </div>
-        @endif
-    </section>
+        </section>
+    @endif
 
     {{-- ================================================================== --}}
-    {{-- The principle -- a light section for contrast                       --}}
+    {{-- The principle                                                       --}}
     {{-- ================================================================== --}}
-    <section class="surface-light relative overflow-hidden bg-surface py-24 lg:py-32">
+    <section class="wash-top relative overflow-hidden border-b border-line bg-surface-2 py-20 lg:py-28">
         <div class="container-page relative grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
             <div>
                 <p class="eyebrow reveal">{{ setting_text('home.intro_eyebrow') }}</p>
@@ -129,7 +150,7 @@
     {{-- Services                                                            --}}
     {{-- ================================================================== --}}
     @if ($site->services()->isNotEmpty())
-        <section class="surface-light bg-surface py-24 lg:py-32">
+        <section class="border-b border-line bg-surface py-20 lg:py-28">
             <div class="container-page">
                 <x-section-heading
                     :eyebrow="setting_text('home.services_eyebrow')"
@@ -138,8 +159,11 @@
 
                 <div class="mt-14 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($site->services() as $index => $service)
-                        <article class="reveal bg-surface p-8 lg:p-10" data-reveal-index="{{ $index }}">
-                            <x-service-icon :name="$service->icon" class="h-7 w-7 text-primary" />
+                        <article
+                            class="reveal group bg-surface-2 p-8 transition-colors duration-300 hover:bg-surface-3 lg:p-10"
+                            data-reveal-index="{{ $index }}"
+                        >
+                            <x-service-icon :name="$service->icon" class="icon-draw h-7 w-7 text-primary" />
                             <h3 class="mt-6 font-display text-2xl text-ink">{{ $service->localized('title') }}</h3>
                             <p class="mt-3 text-sm leading-relaxed text-muted">{{ $service->localized('summary') }}</p>
                         </article>
@@ -160,7 +184,7 @@
     {{-- ================================================================== --}}
     @if ($site->processSteps()->isNotEmpty())
         <section class="relative overflow-hidden py-24 lg:py-32">
-            <x-plate-rings class="top-1/2 h-[40rem] w-[40rem] -translate-y-1/2" style="inset-inline-start: -14rem;" opacity="0.16" />
+            <x-plate-rings class="top-1/2 h-[40rem] w-[40rem] -translate-y-1/2" style="inset-inline-start: -14rem;" opacity="0.16" data-parallax="0.1" />
 
             <div class="container-page relative">
                 <x-section-heading
@@ -170,15 +194,17 @@
 
                 <ol class="mt-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach ($site->processSteps() as $index => $step)
-                        <li class="reveal" data-reveal-index="{{ $index }}">
+                        {{-- Each step choreographs: number rises, the hairline
+                             draws across, then the title and body follow. --}}
+                        <li class="reveal-stagger" data-reveal-index="{{ $index }}">
                             <div class="flex items-baseline gap-4">
-                                <span class="font-display text-5xl text-primary/45">
+                                <span class="step-num font-display text-5xl text-primary/45">
                                     {{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}
                                 </span>
-                                <span class="h-px flex-1 bg-line"></span>
+                                <span class="step-rule h-px flex-1 bg-line-strong"></span>
                             </div>
-                            <h3 class="mt-5 font-display text-2xl text-ink">{{ $step->localized('title') }}</h3>
-                            <p class="mt-3 text-sm leading-relaxed text-muted">{{ $step->localized('description') }}</p>
+                            <h3 class="step-title mt-5 font-display text-2xl text-ink">{{ $step->localized('title') }}</h3>
+                            <p class="step-body mt-3 text-sm leading-relaxed text-muted">{{ $step->localized('description') }}</p>
                         </li>
                     @endforeach
                 </ol>
@@ -190,7 +216,7 @@
     {{-- Experience preview                                                  --}}
     {{-- ================================================================== --}}
     @if ($site->experiences()->isNotEmpty())
-        <section class="border-t border-line py-24 lg:py-32">
+        <section class="border-t border-line py-20 lg:py-28">
             <div class="container-page">
                 <div class="flex flex-wrap items-end justify-between gap-8">
                     <x-section-heading
@@ -206,7 +232,7 @@
                 <ul class="mt-14">
                     @foreach ($site->experiences() as $index => $experience)
                         <li
-                            class="reveal grid gap-3 border-t border-line py-8 last:border-b sm:grid-cols-[10rem_1fr_auto] sm:items-baseline sm:gap-8"
+                            class="reveal-side grid gap-3 border-t border-line py-8 last:border-b sm:grid-cols-[10rem_1fr_auto] sm:items-baseline sm:gap-8"
                             data-reveal-index="{{ $index }}"
                         >
                             <span class="font-mono text-sm text-faint" dir="ltr">{{ $experience->period() }}</span>
@@ -229,9 +255,9 @@
     {{-- ================================================================== --}}
     {{-- Closing call to action                                              --}}
     {{-- ================================================================== --}}
-    <section class="relative overflow-hidden border-t border-line py-24 lg:py-32">
-        <div class="pass-glow center-abs h-[32rem] w-[32rem] opacity-45" aria-hidden="true"></div>
-        <x-plate-rings class="center-abs h-[38rem] w-[38rem]" opacity="0.3" />
+    <section class="wash-top relative overflow-hidden border-t border-line py-28 lg:py-36">
+        <div class="pass-glow pass-glow--pulse center-abs h-[32rem] w-[32rem] opacity-45" aria-hidden="true"></div>
+        <x-plate-rings class="center-abs h-[38rem] w-[38rem]" opacity="0.3" data-parallax="-0.06" />
 
         <div class="container-page relative text-center">
             <x-logo class="reveal mx-auto h-16 w-16 text-primary" :animated="true" />

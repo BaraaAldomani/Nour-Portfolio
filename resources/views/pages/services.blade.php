@@ -10,11 +10,11 @@
         <div class="container-page space-y-px">
             @foreach ($site->services() as $index => $service)
                 <article
-                    class="reveal grid gap-8 border-t border-line py-12 last:border-b lg:grid-cols-[4rem_1fr_1fr] lg:gap-16 lg:py-16"
+                    class="reveal-side grid gap-8 border-t border-line py-12 last:border-b lg:grid-cols-[4rem_1fr_1fr] lg:gap-16 lg:py-16"
                     data-reveal-index="{{ $index }}"
                 >
                     <div>
-                        <x-service-icon :name="$service->icon" class="h-8 w-8 text-primary" />
+                        <x-service-icon :name="$service->icon" class="icon-draw h-8 w-8 text-primary" />
                         <p class="mt-4 font-mono text-xs text-faint">
                             {{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}
                         </p>
@@ -42,7 +42,7 @@
 
     {{-- Method --}}
     @if ($site->processSteps()->isNotEmpty())
-        <section class="surface-light relative overflow-hidden bg-surface py-20 lg:py-28">
+        <section class="relative overflow-hidden border-t border-line bg-surface-2 py-20 lg:py-28">
             <div class="container-page relative">
                 <x-section-heading
                     :eyebrow="setting_text('home.process_eyebrow')"
@@ -51,15 +51,15 @@
 
                 <ol class="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach ($site->processSteps() as $index => $step)
-                        <li class="reveal" data-reveal-index="{{ $index }}">
+                        <li class="reveal-stagger" data-reveal-index="{{ $index }}">
                             <div class="flex items-baseline gap-4">
-                                <span class="font-display text-5xl text-primary/50">
+                                <span class="step-num font-display text-5xl text-primary/50">
                                     {{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}
                                 </span>
-                                <span class="h-px flex-1 bg-line"></span>
+                                <span class="step-rule h-px flex-1 bg-line-strong"></span>
                             </div>
-                            <h3 class="mt-5 font-display text-2xl text-ink">{{ $step->localized('title') }}</h3>
-                            <p class="mt-3 text-sm leading-relaxed text-muted">{{ $step->localized('description') }}</p>
+                            <h3 class="step-title mt-5 font-display text-2xl text-ink">{{ $step->localized('title') }}</h3>
+                            <p class="step-body mt-3 text-sm leading-relaxed text-muted">{{ $step->localized('description') }}</p>
                         </li>
                     @endforeach
                 </ol>

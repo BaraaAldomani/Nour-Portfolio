@@ -63,8 +63,8 @@
     --color-glass: var(--color-glass);
     --color-glass-line: var(--color-glass-line);
 
-    --font-display: 'Cormorant Garamond', 'Amiri', ui-serif, Georgia, serif;
-    --font-body: 'Inter', 'Cairo', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Fraunces', 'El Messiri', ui-serif, Georgia, serif;
+    --font-body: 'Figtree', 'Tajawal', ui-sans-serif, system-ui, sans-serif;
 
     --radius-card: 2px;
     --radius-pill: 999px;
@@ -73,13 +73,13 @@
 }
 
 /*
-| Arabic gets a serif of its own rather than a Latin face with an Arabic
-| fallback. Amiri carries the same high-contrast editorial voice as Cormorant,
-| and Cairo is its body companion.
+| Arabic gets a display face of its own rather than a Latin face with an Arabic
+| fallback. El Messiri carries the same warm, high-presence voice as Fraunces,
+| and Tajawal is its lighter body companion.
 */
 html[lang='ar'] {
-    --font-display: 'Amiri', 'Cormorant Garamond', ui-serif, serif;
-    --font-body: 'Cairo', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'El Messiri', 'Fraunces', ui-serif, serif;
+    --font-body: 'Tajawal', 'Figtree', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ============================================================================
@@ -151,27 +151,29 @@ html[lang='ar'] {
     /* ---- Type scale ------------------------------------------------------ */
     .display-hero {
         font-family: var(--font-display);
-        font-size: clamp(2.75rem, 9vw, 7rem);
-        font-weight: 400;
-        line-height: 0.98;
-        letter-spacing: -0.02em;
+        font-size: clamp(3rem, 9.5vw, 8.25rem);
+        font-weight: 500;
+        line-height: 0.95;
+        letter-spacing: -0.03em;
     }
 
     html[lang='ar'] .display-hero {
-        line-height: 1.24;
+        font-weight: 600;
+        line-height: 1.18;
         letter-spacing: 0;
     }
 
     .display-section {
         font-family: var(--font-display);
-        font-size: clamp(2rem, 4.6vw, 3.5rem);
-        font-weight: 400;
-        line-height: 1.06;
-        letter-spacing: -0.015em;
+        font-size: clamp(2.25rem, 5vw, 4.25rem);
+        font-weight: 500;
+        line-height: 1.02;
+        letter-spacing: -0.02em;
     }
 
     html[lang='ar'] .display-section {
-        line-height: 1.38;
+        font-weight: 600;
+        line-height: 1.3;
         letter-spacing: 0;
     }
 
@@ -199,12 +201,14 @@ html[lang='ar'] {
 
     /* ---- Buttons --------------------------------------------------------- */
     .btn {
+        position: relative;
+        overflow: hidden;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.625rem;
-        padding-block: 0.9rem;
-        padding-inline: 1.75rem;
+        padding-block: 0.95rem;
+        padding-inline: 2rem;
         font-size: 0.9375rem;
         font-weight: 500;
         letter-spacing: 0.02em;
@@ -219,6 +223,33 @@ html[lang='ar'] {
 
     .btn:hover {
         transform: translateY(-2px);
+    }
+
+    /* A light sweep across the face of the button on hover. Transform-only. */
+    .btn::after {
+        content: '';
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: -45%;
+        width: 45%;
+        background: linear-gradient(
+            105deg,
+            transparent,
+            color-mix(in oklab, white 40%, transparent),
+            transparent
+        );
+        transform: skewX(-18deg) translateX(0);
+        transition: transform 700ms var(--ease-out-soft);
+        pointer-events: none;
+    }
+
+    .btn:hover::after {
+        transform: skewX(-18deg) translateX(340%);
+    }
+
+    /* In RTL the sweep starts from the right edge, so it travels the other way. */
+    [dir='rtl'] .btn:hover::after {
+        transform: skewX(-18deg) translateX(-340%);
     }
 
     .btn-primary {
@@ -435,19 +466,178 @@ html[lang='ar'] {
     }
 
     /* ---- Skill meter ----------------------------------------------------- */
-    .meter {
-        display: inline-flex;
-        gap: 3px;
-    }
-
-    .meter span {
-        width: 16px;
+    /*
+    | A thin gold bar that fills to the skill's level when its panel scrolls
+    | into view. --meter is the fill fraction (level / 5); --stagger-delay
+    | cascades the bars inside one panel.
+    */
+    .meter-track {
+        position: relative;
+        display: block;
         height: 2px;
+        margin-top: 0.625rem;
+        overflow: hidden;
         background-color: var(--color-line-strong);
     }
 
-    .meter span[data-on='1'] {
+    .meter-fill {
+        position: absolute;
+        inset: 0;
         background-color: var(--color-primary);
+        transform: scaleX(var(--meter, 0));
+        transform-origin: 0 50%;
+    }
+
+    [dir='rtl'] .meter-fill {
+        transform-origin: 100% 50%;
+    }
+
+    .js .reveal-stagger .meter-fill {
+        transform: scaleX(0);
+        transition: transform 1100ms var(--ease-out-soft);
+        transition-delay: var(--stagger-delay, 0ms);
+    }
+
+    .js .reveal-stagger[data-revealed='true'] .meter-fill {
+        transform: scaleX(var(--meter, 0));
+    }
+
+    /* ---- Hero entrance --------------------------------------------------- */
+    /*
+    | Each hero line sits inside a clipping mask and rises into place when
+    | .hero-ready lands on the section (set by JS once the display fonts have
+    | loaded, so nothing animates in the fallback face and then jumps).
+    | Scoped to html.js: without JavaScript the lines are simply visible.
+    */
+    .mask-line {
+        overflow: hidden;
+    }
+
+    .js [data-hero] .mask-line > * {
+        transform: translateY(115%);
+        transition: transform 950ms var(--ease-out-soft);
+        transition-delay: var(--mask-delay, 0ms);
+        will-change: transform;
+    }
+
+    .js [data-hero].hero-ready .mask-line > * {
+        transform: translateY(0);
+    }
+
+    /* Blocks that fade-and-sharpen in as part of the same sequence. */
+    .js [data-hero] [data-hero-fade] {
+        opacity: 0;
+        transform: scale(1.04);
+        filter: blur(10px);
+        transition:
+            opacity 1100ms var(--ease-out-soft),
+            transform 1100ms var(--ease-out-soft),
+            filter 1100ms var(--ease-out-soft);
+        transition-delay: var(--mask-delay, 0ms);
+    }
+
+    .js [data-hero].hero-ready [data-hero-fade] {
+        opacity: 1;
+        transform: none;
+        filter: none;
+    }
+
+    /* ---- Watermark ------------------------------------------------------- */
+    /*
+    | An enormous outlined word behind the hero. Physical `left` + symmetric
+    | translate is deliberate, for the same reason as .center-abs: centring is
+    | direction-agnostic, and logical offsets would double-flip it in RTL.
+    */
+    .watermark {
+        position: absolute;
+        left: 50%;
+        translate: -50% 0;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: clamp(9rem, 32vw, 28rem);
+        line-height: 1;
+        color: transparent;
+        -webkit-text-stroke: 1px color-mix(in oklab, var(--brand-primary) 28%, transparent);
+        opacity: 0.55;
+        white-space: nowrap;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* ---- Scroll progress ------------------------------------------------- */
+    /*
+    | A gold hairline along the top edge tracking reading progress. Full-width
+    | and scaled from the reading edge; `left: 0; width: 100%` is symmetric, and
+    | the origin flips with direction below.
+    */
+    .progress-rail {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        z-index: 60;
+        background-color: var(--color-primary);
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        pointer-events: none;
+    }
+
+    [dir='rtl'] .progress-rail {
+        transform-origin: 100% 50%;
+    }
+
+    /* ---- Ambient --------------------------------------------------------- */
+    .pass-glow--pulse {
+        animation: glow-pulse 7s var(--ease-in-out-soft) infinite;
+    }
+
+    @keyframes glow-pulse {
+        0%,
+        100% {
+            opacity: 0.55;
+        }
+        50% {
+            opacity: 0.85;
+        }
+    }
+
+    /* A soft pool of brand light bleeding down from a section's top edge. */
+    .wash-top {
+        background-image: radial-gradient(
+            60% 45% at 50% 0%,
+            var(--wash-primary),
+            transparent 70%
+        );
+    }
+
+    /* ---- Card hover ------------------------------------------------------ */
+    .card-lift {
+        transition: transform var(--dur-base) var(--ease-out-soft);
+    }
+
+    .card-lift:hover {
+        transform: translateY(-8px);
+    }
+
+    /* The short gold rule that slides out under a dish title on hover. */
+    .rule-slide {
+        display: block;
+        width: 2.5rem;
+        height: 2px;
+        background-color: var(--brand-primary);
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        transition: transform var(--dur-base) var(--ease-out-soft);
+    }
+
+    [dir='rtl'] .rule-slide {
+        transform-origin: 100% 50%;
+    }
+
+    .card-lift:hover .rule-slide,
+    .frame:hover .rule-slide {
+        transform: scaleX(1);
     }
 }
 
@@ -489,6 +679,126 @@ html[lang='ar'] {
         filter: none;
         transform: none;
     }
+
+    /* ---- Slide in from the reading edge (timeline entries, service rows) -- */
+    .js .reveal-side {
+        opacity: 0;
+        transform: translateX(-40px);
+        transition:
+            opacity var(--dur-slow) var(--ease-out-soft),
+            transform var(--dur-slow) var(--ease-out-soft);
+        transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    .js[dir='rtl'] .reveal-side {
+        transform: translateX(40px);
+    }
+
+    .js .reveal-side[data-revealed='true'] {
+        opacity: 1;
+        transform: none;
+    }
+
+    /*
+    | ---- Stagger container -----------------------------------------------
+    | Carries no styles of its own; the observer stamps data-revealed on it and
+    | the children below choreograph off that. Used by the method steps and the
+    | skills panels.
+    */
+    .js .reveal-stagger .step-num,
+    .js .reveal-stagger .step-title,
+    .js .reveal-stagger .step-body {
+        opacity: 0;
+        transform: translateY(22px);
+        transition:
+            opacity 700ms var(--ease-out-soft),
+            transform 700ms var(--ease-out-soft);
+    }
+
+    .js .reveal-stagger .step-rule {
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        transition: transform 900ms var(--ease-out-soft);
+    }
+
+    .js[dir='rtl'] .reveal-stagger .step-rule {
+        transform-origin: 100% 50%;
+    }
+
+    /* The sequence: number rises, the hairline draws across, then the text. */
+    .js .reveal-stagger[data-revealed='true'] .step-num {
+        opacity: 1;
+        transform: none;
+        transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    .js .reveal-stagger[data-revealed='true'] .step-rule {
+        transform: scaleX(1);
+        transition-delay: calc(var(--reveal-delay, 0ms) + 140ms);
+    }
+
+    .js .reveal-stagger[data-revealed='true'] .step-title {
+        opacity: 1;
+        transform: none;
+        transition-delay: calc(var(--reveal-delay, 0ms) + 260ms);
+    }
+
+    .js .reveal-stagger[data-revealed='true'] .step-body {
+        opacity: 1;
+        transform: none;
+        transition-delay: calc(var(--reveal-delay, 0ms) + 380ms);
+    }
+
+    /* ---- Timeline: the spine grows downward, then each node pops ---------- */
+    .js .grow-y {
+        transform: scaleY(0);
+        transform-origin: 50% 0;
+        transition: transform 1600ms var(--ease-out-soft);
+    }
+
+    .js .grow-y[data-revealed='true'] {
+        transform: scaleY(1);
+    }
+
+    /* `scale` (not transform) so it composes with the node's positioning. */
+    .js .reveal-side .node-pop {
+        scale: 0;
+        transition: scale 500ms var(--ease-out-soft);
+        transition-delay: calc(var(--reveal-delay, 0ms) + 350ms);
+    }
+
+    .js .reveal-side[data-revealed='true'] .node-pop {
+        scale: 1;
+    }
+
+    /*
+    | ---- Icon stroke drawing ----------------------------------------------
+    | The service icons are stroke-only SVGs whose paths carry pathLength="1",
+    | so a dash of length 1 hides each stroke and animating the offset to zero
+    | literally draws the icon when its card reveals.
+    */
+    .js .icon-draw path {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+    }
+
+    .js [data-revealed='true'] .icon-draw path {
+        animation: icon-draw 1000ms var(--ease-out-soft) forwards;
+    }
+
+    .js [data-revealed='true'] .icon-draw path:nth-child(2) { animation-delay: 120ms; }
+    .js [data-revealed='true'] .icon-draw path:nth-child(3) { animation-delay: 240ms; }
+    .js [data-revealed='true'] .icon-draw path:nth-child(4) { animation-delay: 360ms; }
+    .js [data-revealed='true'] .icon-draw path:nth-child(5) { animation-delay: 480ms; }
+    .js [data-revealed='true'] .icon-draw path:nth-child(6) { animation-delay: 600ms; }
+    .js [data-revealed='true'] .icon-draw path:nth-child(7) { animation-delay: 720ms; }
+    .js [data-revealed='true'] .icon-draw path:nth-child(8) { animation-delay: 840ms; }
+
+    @keyframes icon-draw {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
 }
 
 /*
@@ -509,13 +819,39 @@ html[lang='ar'] {
     }
 
     .js .reveal,
-    .js .reveal-blur {
+    .js .reveal-blur,
+    .js .reveal-side,
+    .js .reveal-stagger .step-num,
+    .js .reveal-stagger .step-title,
+    .js .reveal-stagger .step-body,
+    .js [data-hero] .mask-line > *,
+    .js [data-hero] [data-hero-fade] {
         opacity: 1 !important;
         transform: none !important;
         filter: none !important;
     }
 
-    .plate-ring__spin {
+    .js .reveal-stagger .step-rule,
+    .js .grow-y {
+        transform: none !important;
+    }
+
+    .js .reveal-side .node-pop {
+        scale: 1 !important;
+    }
+
+    .js .reveal-stagger .meter-fill {
+        transform: scaleX(var(--meter, 0)) !important;
+    }
+
+    .js .icon-draw path {
+        stroke-dasharray: none !important;
+        stroke-dashoffset: 0 !important;
+        animation: none !important;
+    }
+
+    .plate-ring__spin,
+    .pass-glow--pulse {
         animation: none !important;
     }
 }

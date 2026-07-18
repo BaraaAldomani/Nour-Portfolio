@@ -107,6 +107,9 @@
         {{ __('nav.skip') }}
     </a>
 
+    {{-- Reading-progress hairline; driven by JS, invisible without it. --}}
+    <div class="progress-rail" data-progress aria-hidden="true"></div>
+
     <x-site-header />
 
     <main id="main">

@@ -14,6 +14,7 @@ return [
     'portrait_alt' => 'Portrait of Nour Aldeen Aldomani, executive chef',
     'logo_alt'     => 'Monogram of Nour Aldeen Aldomani',
     'step'         => 'Step :number',
+    'hero_watermark' => 'CHEF',
     'category'     => 'Category',
     'all'          => 'All',
     'filter_by'    => 'Filter dishes by category',

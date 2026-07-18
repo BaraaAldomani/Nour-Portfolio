@@ -59,6 +59,8 @@
     aria-hidden="true" focusable="false"
 >
     @foreach ($shape as $d)
-        <path d="{{ $d }}" />
+        {{-- pathLength=1 normalises every stroke so the .icon-draw animation
+             can draw any path with a single dash of length 1. --}}
+        <path d="{{ $d }}" pathLength="1" />
     @endforeach
 </svg>

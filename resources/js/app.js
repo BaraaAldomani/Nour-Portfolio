@@ -21,10 +21,99 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 document.documentElement.classList.add('js');
 
 /* ---------------------------------------------------------------------------
+| Hero entrance
+| ---------------------------------------------------------------------------
+| One choreographed sequence: the masked lines rise and the portrait sharpens
+| once the display fonts are ready, so nothing animates in a fallback face and
+| then jumps. A timeout race guarantees the page never stays hidden if a font
+| stalls.
+| ------------------------------------------------------------------------- */
+function initHeroSequence() {
+    const hero = document.querySelector('[data-hero]');
+
+    if (!hero) {
+        return;
+    }
+
+    const ready = () => hero.classList.add('hero-ready');
+
+    if (reduceMotion.matches) {
+        ready();
+
+        return;
+    }
+
+    Promise.race([
+        document.fonts?.ready ?? Promise.resolve(),
+        new Promise((resolve) => setTimeout(resolve, 700)),
+    ]).then(() => requestAnimationFrame(ready));
+}
+
+/* ---------------------------------------------------------------------------
+| Scroll-linked motion: progress rail + parallax drift
+| ---------------------------------------------------------------------------
+| One rAF loop drives both. Parallax measures the untransformed PARENT of each
+| target — transforming the target itself would move its own rect and feed
+| back into the next measurement.
+| ------------------------------------------------------------------------- */
+function initScrollMotion() {
+    const rail = document.querySelector('[data-progress]');
+
+    const layers = reduceMotion.matches
+        ? []
+        : [...document.querySelectorAll('[data-parallax]')]
+            .filter((el) => el.parentElement)
+            .map((el) => ({
+                el,
+                parent: el.parentElement,
+                speed: Number(el.dataset.parallax) || 0,
+            }));
+
+    if (!rail && layers.length === 0) {
+        return;
+    }
+
+    let ticking = false;
+
+    const update = () => {
+        if (rail) {
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = max > 0 ? Math.min(window.scrollY / max, 1) : 0;
+            rail.style.transform = `scaleX(${progress.toFixed(4)})`;
+        }
+
+        for (const { el, parent, speed } of layers) {
+            const rect = parent.getBoundingClientRect();
+            const offset = (rect.top + rect.height / 2 - window.innerHeight / 2) * speed;
+            el.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
+        }
+
+        ticking = false;
+    };
+
+    window.addEventListener(
+        'scroll',
+        () => {
+            if (!ticking) {
+                ticking = true;
+                requestAnimationFrame(update);
+            }
+        },
+        { passive: true },
+    );
+
+    window.addEventListener('resize', update, { passive: true });
+
+    update();
+}
+
+/* ---------------------------------------------------------------------------
 | Scroll reveals
 | ------------------------------------------------------------------------- */
 function initReveals() {
-    const targets = document.querySelectorAll('.reveal, .reveal-blur');
+    const targets = document.querySelectorAll(
+        '.reveal, .reveal-blur, .reveal-side, .reveal-stagger, .grow-y',
+    );
 
     if (targets.length === 0) {
         return;
@@ -209,6 +298,8 @@ function initFilter() {
 }
 
 function init() {
+    initHeroSequence();
+    initScrollMotion();
     initReveals();
     initCounters();
     initNav();
